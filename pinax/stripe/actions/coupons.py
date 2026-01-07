@@ -8,7 +8,7 @@ def sync_coupons():
     Synchronizes all coupons from the Stripe API
     """
     try:
-        coupons = stripe.Coupon.auto_paging_iter()
+        coupons = stripe.Coupon.list().auto_paging_iter()
     except AttributeError:
         coupons = iter(stripe.Coupon.all().data)
 

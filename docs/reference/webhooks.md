@@ -24,7 +24,7 @@ and store events sent to your webhook.  If you install the `pinax-stripe` urls
 like so:
 
 ```python
-url(r"^payments/", include("pinax.stripe.urls")),
+re_path(r"^payments/", include("pinax.stripe.urls")),
 ```
 
 Then the full url to your webhook that you'll need to enter into the Stripe UI

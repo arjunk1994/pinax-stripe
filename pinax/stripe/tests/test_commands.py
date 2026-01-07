@@ -32,9 +32,10 @@ class CommandTests(TestCase):
         customer = Customer.objects.get(user=self.user)
         self.assertEquals(customer.stripe_id, "cus_XXXXX")
 
-    @patch("stripe.Plan.all")
+    @patch("stripe.Plan.all", create=True)
+    @patch("stripe.Plan.list", create=True, side_effect=AttributeError)
     @patch("stripe.Plan.auto_paging_iter", create=True, side_effect=AttributeError)
-    def test_plans_create_deprecated(self, PlanAutoPagerMock, PlanAllMock):
+    def test_plans_create_deprecated(self, PlanAutoPagerMock, PlanListMock, PlanAllMock):
         PlanAllMock().data = [{
             "id": "entry-monthly",
             "amount": 954,
@@ -51,9 +52,9 @@ class CommandTests(TestCase):
         self.assertEquals(Plan.objects.all()[0].stripe_id, "entry-monthly")
         self.assertEquals(Plan.objects.all()[0].amount, decimal.Decimal("9.54"))
 
-    @patch("stripe.Plan.auto_paging_iter", create=True)
-    def test_plans_create(self, PlanAutoPagerMock):
-        PlanAutoPagerMock.return_value = [{
+    @patch("stripe.Plan.list")
+    def test_plans_create(self, PlanListMock):
+        PlanListMock.return_value.auto_paging_iter.return_value = [{
             "id": "entry-monthly",
             "amount": 954,
             "interval": "monthly",
@@ -69,9 +70,9 @@ class CommandTests(TestCase):
         self.assertEquals(Plan.objects.all()[0].stripe_id, "entry-monthly")
         self.assertEquals(Plan.objects.all()[0].amount, decimal.Decimal("9.54"))
 
-    @patch("stripe.Coupon.auto_paging_iter", create=True)
-    def test_coupons_create(self, CouponAutoPagerMock):
-        CouponAutoPagerMock.return_value = [{
+    @patch("stripe.Coupon.list")
+    def test_coupons_create(self, CouponListMock):
+        CouponListMock.return_value.auto_paging_iter.return_value = [{
             "id": "test-coupon",
             "object": "coupon",
             "amount_off": None,
@@ -93,9 +94,10 @@ class CommandTests(TestCase):
         self.assertEquals(Coupon.objects.all()[0].stripe_id, "test-coupon")
         self.assertEquals(Coupon.objects.all()[0].percent_off, 25)
 
-    @patch("stripe.Coupon.all")
+    @patch("stripe.Coupon.all", create=True)
+    @patch("stripe.Coupon.list", create=True, side_effect=AttributeError)
     @patch("stripe.Coupon.auto_paging_iter", create=True, side_effect=AttributeError)
-    def test_coupons_create_deprecated(self, CouponAutoPagerMock, CouponAllMock):
+    def test_coupons_create_deprecated(self, CouponAutoPagerMock, CouponListMock, CouponAllMock):
         CouponAllMock().data = [{
             "id": "test-coupon",
             "object": "coupon",

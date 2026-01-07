@@ -1197,9 +1197,10 @@ class SyncsTests(TestCase):
             stripe_id="cus_xxxxxxxxxxxxxxx"
         )
 
-    @patch("stripe.Plan.all")
+    @patch("stripe.Plan.all", create=True)
+    @patch("stripe.Plan.list", create=True, side_effect=AttributeError)
     @patch("stripe.Plan.auto_paging_iter", create=True, side_effect=AttributeError)
-    def test_sync_plans_deprecated(self, PlanAutoPagerMock, PlanAllMock):
+    def test_sync_plans_deprecated(self, PlanAutoPagerMock, PlanListMock, PlanAllMock):
         PlanAllMock().data = [
             {
                 "id": "pro2",
@@ -1234,9 +1235,9 @@ class SyncsTests(TestCase):
         self.assertTrue(Plan.objects.all().count(), 2)
         self.assertEquals(Plan.objects.get(stripe_id="simple1").amount, decimal.Decimal("9.99"))
 
-    @patch("stripe.Plan.auto_paging_iter", create=True)
-    def test_sync_plans(self, PlanAutoPagerMock):
-        PlanAutoPagerMock.return_value = [
+    @patch("stripe.Plan.list")
+    def test_sync_plans(self, PlanListMock):
+        PlanListMock.return_value.auto_paging_iter.return_value = [
             {
                 "id": "pro2",
                 "object": "plan",
@@ -1270,9 +1271,9 @@ class SyncsTests(TestCase):
         self.assertTrue(Plan.objects.all().count(), 2)
         self.assertEquals(Plan.objects.get(stripe_id="simple1").amount, decimal.Decimal("9.99"))
 
-    @patch("stripe.Plan.auto_paging_iter", create=True)
-    def test_sync_plans_update(self, PlanAutoPagerMock):
-        PlanAutoPagerMock.return_value = [
+    @patch("stripe.Plan.list")
+    def test_sync_plans_update(self, PlanListMock):
+        PlanListMock.return_value.auto_paging_iter.return_value = [
             {
                 "id": "pro2",
                 "object": "plan",
@@ -1305,7 +1306,7 @@ class SyncsTests(TestCase):
         plans.sync_plans()
         self.assertTrue(Plan.objects.all().count(), 2)
         self.assertEquals(Plan.objects.get(stripe_id="simple1").amount, decimal.Decimal("9.99"))
-        PlanAutoPagerMock.return_value[1].update({"amount": 499})
+        PlanListMock.return_value.auto_paging_iter.return_value[1].update({"amount": 499})
         plans.sync_plans()
         self.assertEquals(Plan.objects.get(stripe_id="simple1").amount, decimal.Decimal("4.99"))
 

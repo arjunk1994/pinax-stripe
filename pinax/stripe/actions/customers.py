@@ -45,14 +45,17 @@ def _create_without_account(user, card=None, plan=settings.PINAX_STRIPE_DEFAULT_
         quantity=quantity,
         trial_end=trial_end
     )
-    cus, created = models.Customer.objects.get_or_create(
-        stripe_id=stripe_customer["id"],
-        defaults={
-            "user": user
-        }
-    )
-    if not created:
-        cus.user = user  # sync_customer will call cus.save()
+    if cus is not None:
+        cus.stripe_id = stripe_customer["id"]
+    else:
+        cus, created = models.Customer.objects.get_or_create(
+            stripe_id=stripe_customer["id"],
+            defaults={
+                "user": user
+            }
+        )
+        if not created:
+            cus.user = user
     sync_customer(cus, stripe_customer)
     if plan and charge_immediately:
         invoices.create_and_pay(cus)
@@ -81,8 +84,13 @@ def _create_with_account(user, stripe_account, card=None, plan=settings.PINAX_ST
     )
 
     if cus is None:
-        cus = models.Customer.objects.create(stripe_id=stripe_customer["id"], stripe_account=stripe_account)
-        models.UserAccount.objects.create(user=user, account=stripe_account, customer=cus)
+        cus, created = models.Customer.objects.get_or_create(
+            stripe_id=stripe_customer["id"],
+            defaults={
+                "stripe_account": stripe_account
+            }
+        )
+        models.UserAccount.objects.get_or_create(user=user, account=stripe_account, customer=cus)
     else:
         logger.debug("Update local customer %s with new remote customer %s for user %s, and account %s",
                      cus.stripe_id, stripe_customer["id"], user, stripe_account)

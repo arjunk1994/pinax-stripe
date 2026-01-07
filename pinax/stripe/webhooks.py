@@ -3,7 +3,7 @@ import json
 from django.dispatch import Signal
 
 import stripe
-from six import with_metaclass
+
 
 from . import models
 from .actions import (
@@ -69,7 +69,7 @@ class Registerable(type):
         return newclass
 
 
-class Webhook(with_metaclass(Registerable, object)):
+class Webhook(metaclass=Registerable):
 
     name = None
 
@@ -97,8 +97,7 @@ class Webhook(with_metaclass(Registerable, object)):
         self.event.validated_message = json.loads(
             json.dumps(
                 evt.to_dict(),
-                sort_keys=True,
-                cls=stripe.StripeObjectEncoder
+                sort_keys=True
             )
         )
         self.event.valid = self.is_event_valid(self.event.webhook_message["data"], self.event.validated_message["data"])

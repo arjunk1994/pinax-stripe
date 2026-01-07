@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from django.contrib import admin
 
 from ..urls import urlpatterns
@@ -10,9 +10,9 @@ class FakeViewForUrl(object):
 
 
 urlpatterns += [
-    url(r"^admin/", admin.site.urls),
-    url(r"^the/app/$", FakeViewForUrl, name="the_app"),
-    url(r"^accounts/signup/$", FakeViewForUrl, name="signup"),
-    url(r"^password/reset/confirm/(?P<token>.+)/$", FakeViewForUrl,
+    re_path(r"^admin/", admin.site.urls),
+    re_path(r"^the/app/$", FakeViewForUrl, name="the_app"),
+    re_path(r"^accounts/signup/$", FakeViewForUrl, name="signup"),
+    re_path(r"^password/reset/confirm/(?P<token>.+)/$", FakeViewForUrl,
         name="password_reset"),
 ]
