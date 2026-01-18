@@ -22,6 +22,8 @@ from ..models import (
     Plan,
     Transfer
 )
+from django.urls import reverse
+
 from ..webhooks import (
     AccountApplicationDeauthorizeWebhook,
     AccountExternalAccountCreatedWebhook,
@@ -36,11 +38,6 @@ from ..webhooks import (
     Webhook,
     registry
 )
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 class WebhookRegistryTest(TestCase):

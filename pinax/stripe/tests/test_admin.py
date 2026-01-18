@@ -4,14 +4,10 @@ from django.contrib.auth import get_user_model
 from django.db import connection
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from ..models import Account, Customer, Invoice, Plan, Subscription
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 User = get_user_model()

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 import stripe
@@ -7,11 +8,6 @@ from mock import patch
 
 from ..models import Card, Customer, Invoice, Plan, Subscription
 from ..views import PaymentMethodCreateView
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 class PaymentsContextMixinTests(TestCase):
