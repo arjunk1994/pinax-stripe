@@ -83,7 +83,7 @@ def create(
     If both customer and source are provided, the source must belong to the
     customer.
 
-    See https://stripe.com/docs/api#create_charge-customer.
+    See https://stripe.com/docs/api/payment_intents.
 
     Args:
         amount: should be a decimal.Decimal amount
@@ -114,29 +114,44 @@ def create(
     kwargs = dict(
         amount=utils.convert_amount_for_api(amount, currency),  # find the final amount
         currency=currency,
-        source=source,
         customer=customer.stripe_id if customer else None,
         stripe_account=stripe_account_stripe_id,
         description=description,
-        capture=capture,
         idempotency_key=idempotency_key,
+        confirm=True,
+        expand=["latest_charge"],
     )
+    if source:
+        kwargs["payment_method"] = source
+    if not capture:
+        kwargs["capture_method"] = "manual"
     if destination_account:
-        kwargs["destination"] = {"account": destination_account}
+        kwargs["transfer_data"] = {"destination": destination_account}
         if destination_amount:
-            kwargs["destination"]["amount"] = utils.convert_amount_for_api(
+            kwargs["transfer_data"]["amount"] = utils.convert_amount_for_api(
                 destination_amount,
                 currency
             )
         if application_fee:
-            kwargs["application_fee"] = utils.convert_amount_for_api(
+            kwargs["application_fee_amount"] = utils.convert_amount_for_api(
                 application_fee, currency
             )
     elif on_behalf_of:
         kwargs["on_behalf_of"] = on_behalf_of
-    stripe_charge = stripe.Charge.create(
+    payment_intent = stripe.PaymentIntent.create(
         **kwargs
     )
+    latest_charge = payment_intent.get("latest_charge")
+    if isinstance(latest_charge, str):
+        stripe_charge = stripe.Charge.retrieve(
+            latest_charge,
+            stripe_account=stripe_account_stripe_id,
+            expand=["balance_transaction"],
+        )
+    else:
+        stripe_charge = latest_charge
+    if not stripe_charge:
+        raise ValueError("PaymentIntent did not include a charge.")
     charge = sync_charge_from_stripe_data(stripe_charge)
     if send_receipt:
         hooks.hookset.send_receipt(charge, email)

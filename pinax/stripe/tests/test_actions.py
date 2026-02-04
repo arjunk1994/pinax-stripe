@@ -83,7 +83,7 @@ class ChargesTests(TestCase):
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_send_receipt_False_skips_sending_receipt(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(amount=decimal.Decimal("10"), customer=self.customer, send_receipt=False)
         self.assertTrue(CreateMock.called)
@@ -92,7 +92,7 @@ class ChargesTests(TestCase):
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_customer(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(amount=decimal.Decimal("10"), customer=self.customer)
         self.assertTrue(CreateMock.called)
@@ -100,19 +100,19 @@ class ChargesTests(TestCase):
         self.assertEqual(kwargs, {
             "amount": 1000,
             "currency": "usd",
-            "source": None,
             "customer": "cus_xxxxxxxxxxxxxxx",
             "stripe_account": None,
             "description": None,
-            "capture": True,
             "idempotency_key": None,
+            "confirm": True,
+            "expand": ["latest_charge"],
         })
         self.assertTrue(SyncMock.called)
         self.assertTrue(SendReceiptMock.called)
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_customer_id(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(amount=decimal.Decimal("10"), customer=self.customer.stripe_id)
         self.assertTrue(CreateMock.called)
@@ -120,19 +120,19 @@ class ChargesTests(TestCase):
         self.assertEqual(kwargs, {
             "amount": 1000,
             "currency": "usd",
-            "source": None,
             "customer": "cus_xxxxxxxxxxxxxxx",
             "stripe_account": None,
             "description": None,
-            "capture": True,
             "idempotency_key": None,
+            "confirm": True,
+            "expand": ["latest_charge"],
         })
         self.assertTrue(SyncMock.called)
         self.assertTrue(SendReceiptMock.called)
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_new_customer_id(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(amount=decimal.Decimal("10"), customer="cus_NEW")
         self.assertTrue(CreateMock.called)
@@ -140,12 +140,12 @@ class ChargesTests(TestCase):
         self.assertEqual(kwargs, {
             "amount": 1000,
             "currency": "usd",
-            "source": None,
             "customer": "cus_NEW",
             "stripe_account": None,
             "description": None,
-            "capture": True,
             "idempotency_key": None,
+            "confirm": True,
+            "expand": ["latest_charge"],
         })
         self.assertTrue(SyncMock.called)
         self.assertTrue(SendReceiptMock.called)
@@ -153,23 +153,23 @@ class ChargesTests(TestCase):
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_idempotency_key(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(amount=decimal.Decimal("10"), customer=self.customer.stripe_id, idempotency_key="a")
         CreateMock.assert_called_once_with(
             amount=1000,
-            capture=True,
             customer=self.customer.stripe_id,
             stripe_account=self.customer.stripe_account_stripe_id,
             idempotency_key="a",
             description=None,
             currency="usd",
-            source=None,
+            confirm=True,
+            expand=["latest_charge"],
         )
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_app_fee(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(
             amount=decimal.Decimal("10"),
@@ -179,15 +179,15 @@ class ChargesTests(TestCase):
         )
         self.assertTrue(CreateMock.called)
         _, kwargs = CreateMock.call_args
-        self.assertEqual(kwargs["application_fee"], 2500)
-        self.assertEqual(kwargs["destination"]["account"], "xxx")
-        self.assertEqual(kwargs["destination"].get("amount"), None)
+        self.assertEqual(kwargs["application_fee_amount"], 2500)
+        self.assertEqual(kwargs["transfer_data"]["destination"], "xxx")
+        self.assertEqual(kwargs["transfer_data"].get("amount"), None)
         self.assertTrue(SyncMock.called)
         self.assertTrue(SendReceiptMock.called)
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_destination(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(
             amount=decimal.Decimal("10"),
@@ -197,14 +197,14 @@ class ChargesTests(TestCase):
         )
         self.assertTrue(CreateMock.called)
         _, kwargs = CreateMock.call_args
-        self.assertEqual(kwargs["destination"]["account"], "xxx")
-        self.assertEqual(kwargs["destination"]["amount"], 4500)
+        self.assertEqual(kwargs["transfer_data"]["destination"], "xxx")
+        self.assertEqual(kwargs["transfer_data"]["amount"], 4500)
         self.assertTrue(SyncMock.called)
         self.assertTrue(SendReceiptMock.called)
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_on_behalf_of(self, CreateMock, SyncMock, SendReceiptMock):
         charges.create(
             amount=decimal.Decimal("10"),
@@ -219,7 +219,7 @@ class ChargesTests(TestCase):
 
     @patch("pinax.stripe.hooks.hookset.send_receipt")
     @patch("pinax.stripe.actions.charges.sync_charge_from_stripe_data")
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_with_destination_and_on_behalf_of(self, CreateMock, SyncMock, SendReceiptMock):
         with self.assertRaises(ValueError):
             charges.create(
@@ -229,7 +229,7 @@ class ChargesTests(TestCase):
                 on_behalf_of="account",
             )
 
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_not_decimal_raises_exception(self, CreateMock):
         with self.assertRaises(ValueError):
             charges.create(
@@ -238,7 +238,7 @@ class ChargesTests(TestCase):
                 application_fee=10
             )
 
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_app_fee_no_dest_raises_exception(self, CreateMock):
         with self.assertRaises(ValueError):
             charges.create(
@@ -247,7 +247,7 @@ class ChargesTests(TestCase):
                 application_fee=decimal.Decimal("10")
             )
 
-    @patch("stripe.Charge.create")
+    @patch("stripe.PaymentIntent.create")
     def test_create_app_fee_dest_acct_and_dest_amt_raises_exception(self, CreateMock):
         with self.assertRaises(ValueError):
             charges.create(

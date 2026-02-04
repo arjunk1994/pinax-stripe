@@ -4,7 +4,6 @@
 import django.utils.timezone
 from django.db import migrations, models
 
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -26,7 +25,7 @@ class Migration(migrations.Migration):
                 ('duration_in_months', models.PositiveIntegerField(null=True)),
                 ('livemode', models.BooleanField(default=False)),
                 ('max_redemptions', models.PositiveIntegerField(null=True)),
-                ('metadata', jsonfield.fields.JSONField(null=True)),
+                ('metadata', models.JSONField(null=True)),
                 ('percent_off', models.PositiveIntegerField(null=True)),
                 ('redeem_by', models.DateTimeField(null=True)),
                 ('times_redeemed', models.PositiveIntegerField(null=True)),

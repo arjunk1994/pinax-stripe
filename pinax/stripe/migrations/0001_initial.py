@@ -6,7 +6,6 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -119,8 +118,8 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('kind', models.CharField(max_length=250)),
                 ('livemode', models.BooleanField(default=False)),
-                ('webhook_message', jsonfield.fields.JSONField()),
-                ('validated_message', jsonfield.fields.JSONField(null=True)),
+                ('webhook_message', models.JSONField()),
+                ('validated_message', models.JSONField(null=True)),
                 ('valid', models.NullBooleanField()),
                 ('processed', models.BooleanField(default=False)),
                 ('request', models.CharField(blank=True, max_length=100)),

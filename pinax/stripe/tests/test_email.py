@@ -20,22 +20,24 @@ class EmailReceiptTest(TestCase):
             stripe_id="cus_xxxxxxxxxxxxxxx"
         )
 
-    @patch("stripe.Charge.create")
-    def test_email_receipt_renders_amount_properly(self, ChargeMock):
-        ChargeMock.return_value = {
-            "id": "ch_XXXXXX",
-            "source": {
-                "id": "card_01"
-            },
-            "amount": 40000,
-            "currency": "usd",
-            "paid": True,
-            "refunded": False,
-            "invoice": None,
-            "captured": True,
-            "dispute": None,
-            "created": 1363911708,
-            "customer": "cus_xxxxxxxxxxxxxxx"
+    @patch("stripe.PaymentIntent.create")
+    def test_email_receipt_renders_amount_properly(self, PaymentIntentMock):
+        PaymentIntentMock.return_value = {
+            "latest_charge": {
+                "id": "ch_XXXXXX",
+                "source": {
+                    "id": "card_01"
+                },
+                "amount": 40000,
+                "currency": "usd",
+                "paid": True,
+                "refunded": False,
+                "invoice": None,
+                "captured": True,
+                "dispute": None,
+                "created": 1363911708,
+                "customer": "cus_xxxxxxxxxxxxxxx"
+            }
         }
         charges.create(
             customer=self.customer,
@@ -43,22 +45,24 @@ class EmailReceiptTest(TestCase):
         )
         self.assertTrue("$400.00" in mail.outbox[0].body)
 
-    @patch("stripe.Charge.create")
-    def test_email_receipt_renders_amount_in_JPY_properly(self, ChargeMock):
-        ChargeMock.return_value = {
-            "id": "ch_XXXXXX",
-            "source": {
-                "id": "card_01"
-            },
-            "amount": 40000,
-            "currency": "jpy",
-            "paid": True,
-            "refunded": False,
-            "invoice": None,
-            "captured": True,
-            "dispute": None,
-            "created": 1363911708,
-            "customer": "cus_xxxxxxxxxxxxxxx"
+    @patch("stripe.PaymentIntent.create")
+    def test_email_receipt_renders_amount_in_JPY_properly(self, PaymentIntentMock):
+        PaymentIntentMock.return_value = {
+            "latest_charge": {
+                "id": "ch_XXXXXX",
+                "source": {
+                    "id": "card_01"
+                },
+                "amount": 40000,
+                "currency": "jpy",
+                "paid": True,
+                "refunded": False,
+                "invoice": None,
+                "captured": True,
+                "dispute": None,
+                "created": 1363911708,
+                "customer": "cus_xxxxxxxxxxxxxxx"
+            }
         }
         charges.create(
             customer=self.customer,

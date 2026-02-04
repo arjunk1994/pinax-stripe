@@ -1,5 +1,8 @@
-import pkg_resources
+from importlib.metadata import PackageNotFoundError, version
 
 
 default_app_config = "pinax.stripe.apps.AppConfig"
-__version__ = pkg_resources.get_distribution("pinax-stripe").version
+try:
+    __version__ = version("pinax-stripe")
+except PackageNotFoundError:
+    __version__ = "0.0.0"

@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -53,7 +52,7 @@ class Migration(migrations.Migration):
                 ('legal_entity_verification_document', models.TextField(blank=True, null=True)),
                 ('legal_entity_verification_status', models.TextField(blank=True, null=True)),
                 ('type', models.TextField(blank=True, null=True)),
-                ('metadata', jsonfield.fields.JSONField(blank=True, null=True)),
+                ('metadata', models.JSONField(blank=True, null=True)),
                 ('stripe_publishable_key', models.CharField(blank=True, max_length=100, null=True)),
                 ('product_description', models.TextField(blank=True, null=True)),
                 ('statement_descriptor', models.TextField(blank=True, null=True)),
@@ -72,7 +71,7 @@ class Migration(migrations.Migration):
                 ('verification_disabled_reason', models.TextField(blank=True, null=True)),
                 ('verification_due_by', models.DateTimeField(blank=True, null=True)),
                 ('verification_timestamp', models.DateTimeField(blank=True, null=True)),
-                ('verification_fields_needed', jsonfield.fields.JSONField(blank=True, null=True)),
+                ('verification_fields_needed', models.JSONField(blank=True, null=True)),
                 ('authorized', models.BooleanField(default=True)),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='stripe_accounts', to=settings.AUTH_USER_MODEL)),
             ],
@@ -94,7 +93,7 @@ class Migration(migrations.Migration):
                 ('default_for_currency', models.BooleanField(default=False)),
                 ('fingerprint', models.TextField()),
                 ('last4', models.CharField(max_length=4)),
-                ('metadata', jsonfield.fields.JSONField(blank=True, null=True)),
+                ('metadata', models.JSONField(blank=True, null=True)),
                 ('routing_number', models.TextField()),
                 ('status', models.TextField()),
                 ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bank_accounts', to='pinax_stripe.Account')),
@@ -178,7 +177,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='transfer',
             name='metadata',
-            field=jsonfield.fields.JSONField(blank=True, null=True),
+            field=models.JSONField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='transfer',
@@ -218,7 +217,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='coupon',
             name='metadata',
-            field=jsonfield.fields.JSONField(blank=True, null=True),
+            field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='customer',
@@ -233,12 +232,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='validated_message',
-            field=jsonfield.fields.JSONField(blank=True, null=True),
+            field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='plan',
             name='metadata',
-            field=jsonfield.fields.JSONField(blank=True, null=True),
+            field=models.JSONField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='useraccount',
