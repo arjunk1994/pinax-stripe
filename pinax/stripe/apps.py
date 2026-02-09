@@ -9,7 +9,7 @@ class AppConfig(BaseAppConfig):
     name = "pinax.stripe"
     label = "pinax_stripe"
     verbose_name = _("Pinax Stripe")
-    default_auto_field = "django.db.models.AutoField"
+    default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
         importlib.import_module("pinax.stripe.webhooks")

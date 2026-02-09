@@ -6,7 +6,6 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -83,10 +82,10 @@ class Migration(migrations.Migration):
                 ('amount', models.DecimalField(null=True, decimal_places=2, max_digits=9)),
                 ('amount_refunded', models.DecimalField(null=True, decimal_places=2, max_digits=9)),
                 ('description', models.TextField(blank=True)),
-                ('paid', models.NullBooleanField()),
-                ('disputed', models.NullBooleanField()),
-                ('refunded', models.NullBooleanField()),
-                ('captured', models.NullBooleanField()),
+                ('paid', models.BooleanField(null=True)),
+                ('disputed', models.BooleanField(null=True)),
+                ('refunded', models.BooleanField(null=True)),
+                ('captured', models.BooleanField(null=True)),
                 ('receipt_sent', models.BooleanField(default=False)),
                 ('charge_created', models.DateTimeField(null=True, blank=True)),
             ],
@@ -119,9 +118,9 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('kind', models.CharField(max_length=250)),
                 ('livemode', models.BooleanField(default=False)),
-                ('webhook_message', jsonfield.fields.JSONField()),
-                ('validated_message', jsonfield.fields.JSONField(null=True)),
-                ('valid', models.NullBooleanField()),
+                ('webhook_message', models.JSONField()),
+                ('validated_message', models.JSONField(null=True)),
+                ('valid', models.BooleanField(null=True)),
                 ('processed', models.BooleanField(default=False)),
                 ('request', models.CharField(blank=True, max_length=100)),
                 ('pending_webhooks', models.PositiveIntegerField(default=0)),
@@ -150,7 +149,7 @@ class Migration(migrations.Migration):
                 ('stripe_id', models.CharField(unique=True, max_length=191)),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('amount_due', models.DecimalField(decimal_places=2, max_digits=9)),
-                ('attempted', models.NullBooleanField()),
+                ('attempted', models.BooleanField(null=True)),
                 ('attempt_count', models.PositiveIntegerField(null=True)),
                 ('statement_descriptor', models.TextField(blank=True)),
                 ('currency', models.CharField(max_length=10, default='usd')),
