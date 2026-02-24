@@ -2,7 +2,6 @@ import datetime
 import decimal
 
 from django.test import TestCase
-from django.utils import timezone
 
 from ..utils import (
     convert_amount_for_api,
@@ -17,14 +16,14 @@ class TestTimestampConversion(TestCase):
         stamp = convert_tstamp(1365567407)
         self.assertEquals(
             stamp,
-            datetime.datetime(2013, 4, 10, 4, 16, 47, tzinfo=timezone.utc)
+            datetime.datetime(2013, 4, 10, 4, 16, 47, tzinfo=datetime.timezone.utc)
         )
 
     def test_conversion_with_field_name(self):
         stamp = convert_tstamp({"my_date": 1365567407}, "my_date")
         self.assertEquals(
             stamp,
-            datetime.datetime(2013, 4, 10, 4, 16, 47, tzinfo=timezone.utc)
+            datetime.datetime(2013, 4, 10, 4, 16, 47, tzinfo=datetime.timezone.utc)
         )
 
     def test_conversion_with_invalid_field_name(self):

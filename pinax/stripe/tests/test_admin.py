@@ -5,7 +5,6 @@ from django.db import connection
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from django.utils import timezone
 
 from ..models import Account, Customer, Invoice, Plan, Subscription
 
@@ -20,9 +19,9 @@ class AdminTestCase(TestCase):
         super(AdminTestCase, cls).setUpClass()
 
         # create customers and current subscription records
-        period_start = datetime.datetime(2013, 4, 1, tzinfo=timezone.utc)
-        period_end = datetime.datetime(2013, 4, 30, tzinfo=timezone.utc)
-        start = datetime.datetime(2013, 1, 1, tzinfo=timezone.utc)
+        period_start = datetime.datetime(2013, 4, 1, tzinfo=datetime.timezone.utc)
+        period_end = datetime.datetime(2013, 4, 30, tzinfo=datetime.timezone.utc)
+        start = datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc)
         cls.plan = Plan.objects.create(
             stripe_id="p1",
             amount=10,

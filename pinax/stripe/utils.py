@@ -2,11 +2,10 @@ import datetime
 import decimal
 
 from django.conf import settings
-from django.utils import timezone
 
 
 def convert_tstamp(response, field_name=None):
-    tz = timezone.utc if settings.USE_TZ else None
+    tz = datetime.timezone.utc if settings.USE_TZ else None
 
     if field_name and response.get(field_name):
         return datetime.datetime.fromtimestamp(

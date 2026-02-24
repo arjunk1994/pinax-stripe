@@ -3,7 +3,6 @@ import decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
 
 from ..models import Charge, Customer, Plan, Subscription
 
@@ -13,9 +12,9 @@ class CustomerManagerTest(TestCase):
     def setUp(self):
         User = get_user_model()
         # create customers and current subscription records
-        period_start = datetime.datetime(2013, 4, 1, tzinfo=timezone.utc)
-        period_end = datetime.datetime(2013, 4, 30, tzinfo=timezone.utc)
-        start = datetime.datetime(2013, 1, 1, tzinfo=timezone.utc)
+        period_start = datetime.datetime(2013, 4, 1, tzinfo=datetime.timezone.utc)
+        period_end = datetime.datetime(2013, 4, 30, tzinfo=datetime.timezone.utc)
+        start = datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc)
         self.plan = Plan.objects.create(
             stripe_id="p1",
             amount=10,
@@ -145,7 +144,7 @@ class ChargeManagerTests(TestCase):
         Charge.objects.create(
             stripe_id="ch_1",
             customer=customer,
-            charge_created=datetime.datetime(2013, 1, 1, tzinfo=timezone.utc),
+            charge_created=datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc),
             paid=True,
             amount=decimal.Decimal("100"),
             amount_refunded=decimal.Decimal("0")
@@ -153,7 +152,7 @@ class ChargeManagerTests(TestCase):
         Charge.objects.create(
             stripe_id="ch_2",
             customer=customer,
-            charge_created=datetime.datetime(2013, 1, 1, tzinfo=timezone.utc),
+            charge_created=datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc),
             paid=True,
             amount=decimal.Decimal("100"),
             amount_refunded=decimal.Decimal("10")
@@ -161,7 +160,7 @@ class ChargeManagerTests(TestCase):
         Charge.objects.create(
             stripe_id="ch_3",
             customer=customer,
-            charge_created=datetime.datetime(2013, 1, 1, tzinfo=timezone.utc),
+            charge_created=datetime.datetime(2013, 1, 1, tzinfo=datetime.timezone.utc),
             paid=False,
             amount=decimal.Decimal("100"),
             amount_refunded=decimal.Decimal("0")
@@ -169,7 +168,7 @@ class ChargeManagerTests(TestCase):
         Charge.objects.create(
             stripe_id="ch_4",
             customer=customer,
-            charge_created=datetime.datetime(2013, 4, 1, tzinfo=timezone.utc),
+            charge_created=datetime.datetime(2013, 4, 1, tzinfo=datetime.timezone.utc),
             paid=True,
             amount=decimal.Decimal("500"),
             amount_refunded=decimal.Decimal("15.42")
